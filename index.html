@@ -76,6 +76,18 @@
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
     .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
     .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.06);font-size:12px}
+
+    /* Social links (scoped) */
+    .social-links{display:flex;gap:8px;align-items:center;margin-left:6px}
+    .social-link{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--accent);text-decoration:none;transition:transform .15s ease,background .15s ease,color .15s ease}
+    .social-link .social-icon{width:20px;height:20px;display:block;fill:currentColor}
+    .social-link:hover,.social-link:focus{transform:scale(1.06);color:#fff;background:linear-gradient(90deg,var(--accent),#ff5cb6)}
+    .social-link:focus{outline:none;box-shadow:0 0 0 3px rgba(255,60,140,0.12), 0 6px 18px rgba(0,0,0,0.35)}
+    .social-link:focus-visible{outline:none}
+    @media(max-width:480px){
+      .social-link{width:44px;height:44px}
+      .social-link .social-icon{width:22px;height:22px}
+    }
   </style>
 </head>
 <body>
@@ -90,6 +102,19 @@
         <a class="nav-link" href="#/admin" id="navAdmin">অ্যাডমিন</a>
         <a class="nav-link" href="#/login" id="navLogin">লগইন</a>
         <a class="nav-link" href="#/cart" id="navCart">🛒 কার্ট <span id="cartCount" class="badge">0</span></a>
+        <!-- Social links (right-aligned). Replace the HREF placeholders below with your real links if needed -->
+        <div class="social-links" aria-hidden="false">
+          <!-- Replace {{FACEBOOK_URL}} with your Facebook link -->
+          <a href="https://www.facebook.com/mdrahmot.student " class="social-link social-facebook" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+            <!-- Facebook SVG (decorative) -->
+            <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7H8v-3h2.5V9.5c0-2.5 1.5-3.9 3.7-3.9 1.1 0 2.3.2 2.3.2v2.5h-1.2c-1.2 0-1.6.8-1.6 1.6V12H21l-1 3.9h-2.8v7A10 10 0 0 0 22 12z"/></svg>
+          </a>
+          <!-- Replace {{WHATSAPP_URL}} with your WhatsApp link -->
+          <a href="https://wa.me/qr/SWE44KFVGEUUC1 " class="social-link social-whatsapp" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
+            <!-- WhatsApp SVG (decorative) -->
+            <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.5 3.5A11 11 0 0 0 3.6 20.4L2 22l1.6-1.6A11 11 0 1 0 20.5 3.5zm-9 16.1c-1.8 0-3.5-.5-4.9-1.4l-.4-.3-3.1.8.8-3.1-.3-.4A8.8 8.8 0 1 1 11.5 19.6zm5.3-7.6c-.2-.1-1.2-.6-1.3-.6s-.2-.1-.3.1c-.1.2-.6.6-.8.7-.2.1-.4.1-.6-.1s-1.3-.5-2.5-1.5c-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.2-.3.3-.4.1-.1.1-.3 0-.5-.1-.2-.9-2-1.3-2.7-.3-.7-.7-.6-.9-.6-.2 0-.4 0-.6 0s-.5.1-.8.4c-.3.3-1 1-1 2.4s1 2.8 1.1 3c.1.2 1.8 2.7 4.4 3.9 2.5 1.1 2.5.8 3 1.1.5.3 1.6.6 1.8 0 .2-.6.8-1.1 1-1.3.2-.2.4-.3.2-.5z"/></svg>
+          </a>
+        </div>
       </nav>
     </header>
 

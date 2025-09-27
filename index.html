@@ -82,7 +82,7 @@
   <div class="app">
     <header class="topbar">
       <div style="display:flex;align-items:center;gap:12px">
-        <a class="brand" href="#/">E-commerce by <span class="accent">talha</span></a>
+        <a class="brand" href="#/">E-commerce by <span class="accent">RAHMOT ALI</span></a>
         <div class="muted small">Firebase/Auth + Firestore Admin</div>
       </div>
       <nav class="nav-right">
@@ -237,13 +237,13 @@
     import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBnVNIMeJxm_fXcpfBGg-BbdIe5WL8drXg",
-      authDomain: "new-app-9fbd8.firebaseapp.com",
-      projectId: "new-app-9fbd8",
-      storageBucket: "new-app-9fbd8.firebasestorage.app",
-      messagingSenderId: "784160013930",
-      appId: "1:784160013930:web:2a44217c7e4c435a951413"
-    };
+  apiKey: "AIzaSyCgPCNjKPVmvD2vRd_gBawl8CqXxT_wo58",
+  authDomain: "e-commerce-2f2bb.firebaseapp.com",
+  projectId: "e-commerce-2f2bb",
+  storageBucket: "e-commerce-2f2bb.firebasestorage.app",
+  messagingSenderId: "1052321466661",
+  appId: "1:1052321466661:web:2e74279c1735f3be5332cc"
+};
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -266,18 +266,22 @@
       return {
         name:'fakestore',
         async nextChunk(){
+          console.log('[fakestore] nextChunk start', { cacheExists: !!cache, idx });
           if(!cache && !inFlight){
             inFlight = true;
             try{
               const res = await fetch('https://fakestoreapi.com/products');
+              if(!res.ok) { console.warn('[fakestore] fetch failed', res.status); return []; }
               const data = await res.json();
               cache = data.map(p=>({
-                id:fs-${p.id}, source:'fakestore', name:p.title, slug:slugify(p.title),
+                id: 'fs-' + p.id, source:'fakestore', name:p.title, slug:slugify(p.title),
                 price:toBDT(p.price), original:Math.round(toBDT(p.price)*1.2), category:p.category,
                 image:p.image, rating:p.rating?.rate||0, stock:p.rating?.count||10,
                 flash:Math.random()<0.35, description:p.description
               }));
-            } finally { inFlight = false; }
+              console.log('[fakestore] fetched', cache.length, 'items');
+            }catch(err){ console.warn('[fakestore] fetch error', err); }
+            finally { inFlight = false; }
           }
           if(!cache) return [];
           const slice = cache.slice(idx, idx+chunk);
@@ -294,16 +298,20 @@
       return {
         name:'dummyjson',
         async nextChunk(){
+          console.log('[dummyjson] nextChunk start', { skip, exhausted });
           if(exhausted) return [];
-          const url = https://dummyjson.com/products?limit=${pageSize}&skip=${skip};
-          const res = await fetch(url);
-          if(!res.ok){ exhausted = true; return []; }
+          const url = `https://dummyjson.com/products?limit=${pageSize}&skip=${skip}`;
+          let res;
+          try{
+            res = await fetch(url);
+          }catch(err){ console.warn('[dummyjson] fetch error', err); exhausted = true; return []; }
+          if(!res.ok){ console.warn('[dummyjson] bad response', res.status); exhausted = true; return []; }
           const data = await res.json();
           total = data.total ?? total;
           skip += data.products.length;
           if(data.products.length===0){ exhausted = true; return []; }
           return data.products.map(p=>({
-            id:dj-${p.id}, source:'dummyjson', name:p.title, slug:slugify(p.title),
+            id: 'dj-' + p.id, source:'dummyjson', name:p.title, slug:slugify(p.title),
             price:toBDT(p.price), original:Math.round(toBDT(p.price)*1.15), category:p.category,
             image:(p.thumbnail||p.images?.[0]||''), rating:p.rating||0, stock:p.stock||10,
             flash:Math.random()<0.3, description:p.description
@@ -319,6 +327,7 @@
       return {
         name:'firestore',
         async nextChunk(){
+          console.log('[firestore] nextChunk start', { cursorExists: !!cursor });
           if(exhausted) return [];
           let qref = query(collection(db,'products'), orderBy('name'), qLimit(batch));
           if(cursor) qref = query(collection(db,'products'), orderBy('name'), qStartAfter(cursor), qLimit(batch));
@@ -378,7 +387,7 @@
     // ---------- Rendering ----------
     function renderCategories(list){
       const cats = ['all', ...Array.from(new Set(list.map(p=>p.category)))];
-      catWrap.innerHTML = cats.map((c,i)=><div class="cat ${i===0?'active':''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</div>).join('');
+  catWrap.innerHTML = cats.map((c,i)=>`<div class="cat ${i===0?'active':''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</div>`).join('');
       qa$('.cat').forEach(c=>c.addEventListener('click', ()=>{
         qa$('.cat').forEach(x=>x.classList.remove('active'));
         c.classList.add('active');
@@ -392,7 +401,7 @@
       img.src = p.image || 'https://images.unsplash.com/photo-1545235617-9465d0f6f3a6?q=80&w=800&auto=format&fit=crop';
       img.alt = p.name;
       node.querySelector('.prod-name').textContent = p.name;
-      node.querySelector('.prod-cat').textContent = ${p.category} · ${p.source};
+  node.querySelector('.prod-cat').textContent = (p.category || '') + ' · ' + (p.source || '');
       node.querySelector('.priceVal').textContent = p.price;
       node.querySelector('.oldVal').textContent = p.original || Math.round(p.price*1.1);
       if(p.flash){
@@ -401,7 +410,7 @@
         tag.textContent = 'FLASH';
       }
       node.querySelector('.add').addEventListener('click', ()=> addToCart(p));
-      node.querySelector('.view').addEventListener('click', ()=> alert(${p.name}\n\n${p.description||'No description'}));
+  node.querySelector('.view').addEventListener('click', ()=> alert(String(p.name) + '\n\n' + (p.description||'No description')));
       return node;
     }
 
@@ -460,6 +469,7 @@
       if(streaming) return;
       streaming = true;
       try{
+        console.log('[streamNextRound] called', loaders.map(l=>({ name:l.name, hasMore: l.hasMore })));
         // round-robin across loaders
         const results = await Promise.allSettled(loaders.map(l=> l.hasMore ? l.nextChunk() : Promise.resolve([])));
         const merged = results.flatMap(r => (r.status==='fulfilled' ? r.value : [])).filter(Boolean);
@@ -562,7 +572,7 @@
         // kick first round to show something ASAP
         await streamNextRound();
         if(master.length===0){
-          grid.innerHTML = <div class="center"><div class="card" style="padding:16px">API/Firestore থেকে ডাটা আনা যায়নি।<br><button id="retryBtn" class="btn" style="margin-top:8px">পুনরায় চেষ্টা</button></div></div>;
+          grid.innerHTML = `<div class="center"><div class="card" style="padding:16px">API/Firestore থেকে ডাটা আনা যায়নি।<br><button id="retryBtn" class="btn" style="margin-top:8px">পুনরায় চেষ্টা</button></div></div>`;
           q$('#retryBtn')?.addEventListener('click', bootHome);
           return;
         }
@@ -751,7 +761,7 @@
         return;
       }
       const role = await getUserRole(user.uid);
-      q$('#adminRoleBadge').textContent = role: ${role};
+  q$('#adminRoleBadge').textContent = 'role: ' + role;
       if(role !== 'admin'){
         container.innerHTML = '<div style="padding:12px" class="muted">আপনি admin নন। কেবল view করতে পারবেন।</div>';
       }
@@ -761,7 +771,7 @@
         const list = await fsLoader.nextChunk();
 
         const rows = [
-          <table><thead><tr><th>ছবি</th><th>নাম</th><th>ক্যাটাগরি</th><th>মূল্য</th><th>স্টক</th><th>অ্যাকশন</th></tr></thead><tbody>,
+          ` <table><thead><tr><th>ছবি</th><th>নাম</th><th>ক্যাটাগরি</th><th>মূল্য</th><th>স্টক</th><th>অ্যাকশন</th></tr></thead><tbody>`,
           ...list.map(p=>`
             <tr>
               <td><img src="${p.image}" style="width:64px;height:48px;object-fit:cover;border-radius:8px" loading="lazy"></td>
@@ -774,7 +784,7 @@
                 <button class="btn" style="color:var(--danger)" data-id="${p.id}" data-action="delete">Delete</button>
               </td>
             </tr>`).join(''),
-          </tbody></table>
+          `</tbody></table>`
         ].join('');
         container.innerHTML = rows || '<div style="padding:12px" class="muted">কোনো প্রোডাক্ট নেই</div>';
 
@@ -788,7 +798,7 @@
           }catch(e){ alert('ডিলিট ব্যর্থ'); }
         }));
       }catch(e){
-        container.innerHTML = <div style="padding:12px" class="muted">লোডিং ব্যর্থ: ${escapeHtml(e.message)}</div>;
+        container.innerHTML = `<div style="padding:12px" class="muted">লোডিং ব্যর্থ: ${escapeHtml(e.message)}</div>`;
       }
     }
 
@@ -853,8 +863,8 @@
         };
         try{
           if(file && file.size){
-            const docId = id || ${Date.now()};
-            const path = products/${docId}/${file.name};
+            const docId = id || Date.now();
+            const path = `products/${docId}/${file.name}`;
             const ref = sRef(storage, path);
             await uploadBytes(ref, file);
             image = await getDownloadURL(ref);
@@ -918,7 +928,7 @@
             </div>
           </div>`;
         el.innerHTML += `<div style="margin-top:8px">${
-          Object.values(o.items||{}).map(it=><div class="small">${escapeHtml(it.name)} × ${it.qty} — ৳ ${it.price*it.qty}</div>).join('')
+          Object.values(o.items||{}).map(it => '<div class="small">' + escapeHtml(it.name) + ' × ' + it.qty + ' — ৳ ' + (it.price*it.qty) + '</div>').join('')
         }</div>`;
         container.appendChild(el);
       });
